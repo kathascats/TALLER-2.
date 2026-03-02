@@ -27,9 +27,9 @@ public class Main {
                 switch (opcion) {
                     case 1 -> System.out.println("Opción 1 pendiente (la hace el branch 1).");
                     case 2 -> System.out.println("Opción 2 pendiente (la hace el branch 1).");
-                    case 3 -> EliminarYListarPedidos.opcion3EliminarCliente(sc);
+                    case 3 -> Branch2.opcion3EliminarCliente(sc);
                     case 4 -> System.out.println("Opción 4 pendiente (la hace el branch 3).");
-                    case 5 -> EliminarYListarPedidos.opcion5ListarPedidosCliente(sc);
+                    case 5 -> Branch2.opcion5ListarPedidosCliente(sc);
                     case 6 -> System.out.println("Saliendo del programa...");
                     default -> System.out.println("Opción inválida. Intente nuevamente.");
                 }
