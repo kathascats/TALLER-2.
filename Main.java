@@ -30,7 +30,7 @@ public class Main {
                     case 3 : EliminarYListarPedidos.opcion3EliminarCliente(sc);
                     case 4 : System.out.println("Opción 4 pendiente (la hace el branch 3).");
                     case 5 : EliminarYListarPedidos.opcion5ListarPedidosCliente(sc);
-                    case 6 : System.out.println("Saliendo del programa...");11
+                    case 6 : System.out.println("Saliendo del programa...");
                     default : System.out.println("Opción inválida. Intente nuevamente.");
                 }
 
