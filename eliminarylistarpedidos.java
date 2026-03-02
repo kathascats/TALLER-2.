@@ -1,130 +1,103 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
-public class Branch2 {
+public class Main {
 
-    private static final String RUTA_CLIENTES = "clientes.csv";
-    private static final String RUTA_PEDIDOS = "pedidos.csv";
+    static final String CLIENTES_FILE = "clientes.csv";
+    static final String PEDIDOS_FILE = "pedidos.csv";
+    static Scanner sc = new Scanner(System.in);
 
-    /*OPCIÓN 3*/
-    public static void opcion3EliminarCliente(Scanner sc) {
-        System.out.print("Ingrese el ID del cliente a eliminar: ");
-        int idCliente = Integer.parseInt(sc.nextLine());
+    public static void main(String[] args) {
+        System.out.println("1. Eliminar cliente");
+        System.out.println("2. Listar pedidos de un cliente");
+        System.out.print("Opcion: ");
+        int op = Integer.parseInt(sc.nextLine());
 
-        File archivo = new File(RUTA_CLIENTES);
-        if (!archivo.exists()) {
-            System.out.println("No existe el archivo clientes.csv");
-            return;
-        }
-
-        List<String> nuevasLineas = new ArrayList<>();
-        boolean eliminado = false;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            boolean primera = true;
-
-            while ((linea = br.readLine()) != null) {
-
-                if (primera) { // encabezado
-                    nuevasLineas.add(linea);
-                    primera = false;
-                    continue;
-                }
-
-                String[] partes = linea.split(",");
-
-                int id = Integer.parseInt(partes[0]);
-                String activo = partes[4];
-
-                if (id == idCliente && activo.equals("1")) {
-                    partes[4] = "0"; // eliminación lógica
-                    eliminado = true;
-                    nuevasLineas.add(String.join(",", partes));
-                } else {
-                    nuevasLineas.add(linea);
-                }
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error leyendo clientes.csv");
-            return;
-        }
-
-        if (!eliminado) {
-            System.out.println("Cliente no encontrado o ya estaba inactivo.");
-            return;
-        }
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
-            for (String l : nuevasLineas) {
-                pw.println(l);
-            }
-        } catch (Exception e) {
-            System.out.println("Error escribiendo clientes.csv");
-            return;
-        }
-
-        System.out.println("Cliente eliminado correctamente (activo = 0).");
+        if (op == 1) eliminarCliente();
+        else if (op == 2) listarPedidosCliente();
+        else System.out.println("Opcion invalida");
     }
 
+    static void eliminarCliente() {
+        System.out.print("ID del cliente a eliminar: ");
+        int id = Integer.parseInt(sc.nextLine());
 
-    /*OPCIÓN 5*/
-    public static void opcion5ListarPedidosCliente(Scanner sc) {
-        System.out.print("Ingrese el ID del cliente: ");
-        int idCliente = Integer.parseInt(sc.nextLine());
+        List<String> nuevasLineas = new ArrayList<>();
+        boolean encontrado = false;
 
-        File archivo = new File(RUTA_PEDIDOS);
-        if (!archivo.exists()) {
-            System.out.println("No existe el archivo pedidos.csv");
-            return;
-        }
-
-        boolean encontrados = false;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(CLIENTES_FILE));
             String linea;
-            boolean primera = true;
-
-            System.out.println("\nPedidos del cliente ID " + idCliente + ":");
-            System.out.println("--------------------------------------");
 
             while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(",", -1);
 
-                if (primera) { // saltar encabezado
-                    primera = false;
-                    continue;
+                if (datos[0].equals(String.valueOf(id))) {
+                    datos[4] = "0";
+                    linea = String.join(",", datos);
+                    encontrado = true;
                 }
 
-                String[] partes = linea.split(",");
+                nuevasLineas.add(linea);
+            }
 
-                int idPedido = Integer.parseInt(partes[0]);
-                int idCli = Integer.parseInt(partes[1]);
-                String producto = partes[2];
-                String precio = partes[3];
-                String cantidad = partes[4];
-                String activo = partes[5];
+            br.close();
 
-                if (idCli == idCliente && activo.equals("1")) {
-                    encontrados = true;
-                    System.out.println(
-                            "Pedido #" + idPedido +
-                            " | Producto: " + producto +
-                            " | Precio: " + (precio.isEmpty() ? "N/A" : precio) +
-                            " | Cantidad: " + (cantidad.isEmpty() ? "N/A" : cantidad)
-                    );
+            if (!encontrado) {
+                System.out.println("Cliente no encontrado.");
+                return;
+            }
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(CLIENTES_FILE));
+            for (String l : nuevasLineas) {
+                bw.write(l);
+                bw.newLine();
+            }
+            bw.close();
+
+            System.out.println("Cliente eliminado logicamente.");
+
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    static void listarPedidosCliente() {
+        System.out.print("ID del cliente: ");
+        int idCliente = Integer.parseInt(sc.nextLine());
+
+        boolean encontrado = false;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(PEDIDOS_FILE));
+            String linea;
+
+            while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(",", -1);
+
+                if (datos[1].equals(String.valueOf(idCliente)) && datos[5].equals("1")) {
+                    System.out.println("ID Pedido: " + datos[0] +
+                            " | Producto: " + datos[2] +
+                            " | Precio: " + datos[3] +
+                            " | Cantidad: " + datos[4]);
+                    encontrado = true;
                 }
             }
 
-        } catch (Exception e) {
-            System.out.println("Error leyendo pedidos.csv");
-            return;
-        }
+            br.close();
 
-        if (!encontrados) {
-            System.out.println("No hay pedidos activos para este cliente.");
-        }
+            if (!encontrado) {
+                System.out.println("No hay pedidos activos para este cliente.");
+            }
 
-        System.out.println("--------------------------------------\n");
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }
